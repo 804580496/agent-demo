@@ -27,7 +27,48 @@ public static void premain(String agentArgs, Instrumentation inst) {
     }
 getApi是主方法，主要采取反射的机制，获取类的类名，类的url，类的方法，方法名，方法入参，方法注解，方法url，方法返回类型。
 主要代码为：
-Class<?> clazz = Class.forName(className.replace('/', '.'), false, loader);   反射获取类的信息
+
+### 反射获取类的信息
+
+Class<?> clazz = Class.forName(className.replace('/', '.'), false, loader);
+
+### 获取类名
+
+classInfo.put("className", clazz.getName());
+
+### 获取类上的注解
+
+RequestMapping classRequestMapping = clazz.getAnnotation(RequestMapping.class);
+
+### 获取类的方法
+
+Method[] methods = clazz.getDeclaredMethods();
+
+### 获取类方法的注解
+
+RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+
+### 获取类上的url
+
+partApi = Arrays.toString(classUrls).replace("[","").replace("]","");
+
+### 获取方法上的url
+
+String[] urls = requestMapping.value();
+String mainApi = Arrays.toString(urls).replace("[","").replace("]","");
+
+### 获取方法的入参
+
+Parameter[] parameters = method.getParameters();
+for (Parameter parameter : parameters) {
+params.put(getParamsType(parameter), parameter.getName());
+}
+
+### 获取方法的返回值
+getMethodReturnType用于返回处理后的type格式
+String methodReturnType = getMethodReturnType(method);
+methodInfo.put("returns",methodReturnType);
+
 
 在resources下建立META-INF\MANIFEST.MF并进行配置
 
@@ -42,19 +83,4 @@ Class<?> clazz = Class.forName(className.replace('/', '.'), false, loader);   �
 即可在D：\\apis下看到所有类的api的json格式，输出位一个.txt文件。
 
 提取json结构如下：（可修改格式）
-{
-"className": "org.javaweb.vuln.controller.BlacklistController",
-"methods": [{
-    "requestType": "GET + POST",
-    "methodName": "url",
-    "returns": "Map<String, Object>",
-    "params": {},
-    "url": "http://localhost:8003//Blacklist/url.do"
-}, {
-    "requestType": "GET + POST",
-    "methodName": "blacklist",
-    "returns": "Map<String, Object>",
-    "params": {},
-    "url": "http://localhost:8003//Blacklist/blacklist.do"
-}]
-}
+![img.png](img.png)
