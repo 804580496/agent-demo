@@ -40,3 +40,21 @@ Class<?> clazz = Class.forName(className.replace('/', '.'), false, loader);   �
 ## 4.重新运行springboot3Application
 
 即可在D：\\apis下看到所有类的api的json格式，输出位一个.txt文件。
+
+提取json结构如下：（可修改格式）
+{
+"className": "org.javaweb.vuln.controller.BlacklistController",
+"methods": [{
+    "requestType": "GET + POST",
+    "methodName": "url",
+    "returns": "Map<String, Object>",
+    "params": {},
+    "url": "http://localhost:8003//Blacklist/url.do"
+}, {
+    "requestType": "GET + POST",
+    "methodName": "blacklist",
+    "returns": "Map<String, Object>",
+    "params": {},
+    "url": "http://localhost:8003//Blacklist/blacklist.do"
+}]
+}
