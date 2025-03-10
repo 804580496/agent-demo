@@ -26,6 +26,9 @@
             <scope>provided</scope>
         </dependency>
 
+
+
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
@@ -137,6 +140,12 @@
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
             <version>${ognl.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>jboss</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -212,10 +221,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.javaweb</groupId>
-            <artifactId>javaweb-javassist</artifactId>
-            <version>${javassist.version}</version>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.30.2-GA</version> <!-- 可换成最新版本 -->
         </dependency>
+
+
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -259,6 +270,12 @@
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <version>0.9.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.7.1</version>
+            <scope>compile</scope>
         </dependency>
 
 

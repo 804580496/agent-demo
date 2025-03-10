@@ -12,10 +12,21 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>vuln-core</artifactId>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- 管理依赖版本 -->
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.29.2-GA</version>
+            </dependency>
+            <!-- 可以在这里添加其他依赖的管理 -->
+        </dependencies>
+    </dependencyManagement>
     <properties>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <java.version>1.8</java.version>
     </properties>
 
     <dependencies>
@@ -142,6 +153,12 @@
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
             <version>${ognl.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>jboss</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -216,11 +233,7 @@
             <version>${okhttp3.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.javaweb</groupId>
-            <artifactId>javaweb-javassist</artifactId>
-            <version>${javassist.version}</version>
-        </dependency>
+
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

@@ -19,10 +19,10 @@ public class ExpressionController {
 	@PostMapping(value = "/ongl.do", consumes = APPLICATION_JSON_VALUE)
 	public Map<String, Object> ognl(@RequestBody Map<String, Object> map) throws OgnlException {
 		Map<String, Object> data    = new LinkedHashMap<String, Object>();
-		OgnlContext         context = new OgnlContext();
+		//OgnlContext         context = new OgnlContext();
 		String              exp     = (String) map.get("exp");
 
-		data.put("data", Ognl.getValue(exp, context, context.getRoot()));
+		//data.put("data", Ognl.getValue(exp, context, context.getRoot()));
 
 		return data;
 	}

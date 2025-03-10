@@ -27,6 +27,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -110,6 +111,23 @@
             <artifactId>snakeyaml</artifactId>
             <version>${snakeyaml.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <version>9.2</version> <!-- Use the version that is appropriate for your project -->
+        </dependency>
+
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.7.1</version> <!-- 使用适合你项目的版本 -->
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.29.2-GA</version>  <!-- 最新版本 -->
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -121,7 +139,15 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- 管理依赖版本 -->
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.29.2-GA</version>
+            </dependency>
+            <!-- 可以在这里添加其他依赖的管理 -->
         </dependencies>
+
     </dependencyManagement>
 
     <build>
