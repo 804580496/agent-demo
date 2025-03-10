@@ -5,7 +5,7 @@
 
 ## demo开发历程
 
-   3.6号晚7点，正在食堂吃晚饭，接受到hr老师发来的任务。仔细阅读了任务内容，提到了java agent技术，这是我之前没用到过的东西。
+   3.6号晚7点，正在食堂吃晚饭，接受到老师发来的任务。仔细阅读了任务内容，提到了java agent技术，这是我之前没用到过的东西。
    赶紧百度了一下，查到了 https://www.cnblogs.com/chengxuzhixin/p/14552275.html 这一篇文章 提到了使用java agent如何修改字节码。还提到了aop。
    因为自己有过aop（面向切面编程的经验），实现过aop防抖（防止用户多次点击）。主要核心是在方法前后进行增强，建立切面。所以比较好理解java agent的作用。
    又去b站，查到了 https://www.bilibili.com/video/BV17n4y1f78o/?spm_id_from=333.337.search-card.all.click&vd_source=35718cb91f9d7264dbf6afd27e70852f 这个视频，讲解了java agent怎么去实现，有什么作用，例如日志，性能分析，修改字节码文件。

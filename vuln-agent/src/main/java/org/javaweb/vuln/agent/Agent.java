@@ -2,14 +2,18 @@ package org.javaweb.vuln.agent;
 
 
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import org.springframework.web.bind.annotation.*;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.*;
 import java.security.ProtectionDomain;
@@ -50,14 +54,18 @@ public class Agent {
                 return null;
             }
         });
+
+
+
     }
 
-    //主方法
+    //类加载前
     private static void getApi(String className,ClassLoader loader,String packageName){
         if (className.startsWith(packageName)) {
             try {
                 // 使用反射API获取类信息
                 Class<?> clazz = Class.forName(className.replace('/', '.'), false, loader);
+
                 // 创建一个Map来存储当前类的信息
                 Map<String, Object> classInfo = new LinkedHashMap<>();
                 //System.out.println("类名: " + clazz.getName());
@@ -92,37 +100,57 @@ public class Agent {
                         String mainApi = Arrays.toString(urls).replace("[","").replace("]","");
                         String allApi = partApi + mainApi;
                         allApi = allApi.replace("//","/");
-                        methodInfo.put("url",LOCAL_HOST + allApi);
+                        methodInfo.put("url",allApi);
                         String methodReturnType = getMethodReturnType(method);
                         methodInfo.put("returns",methodReturnType);
-                        Map<String,Object> params = new HashMap<>();
                         Parameter[] parameters = method.getParameters();
-                        for (Parameter parameter : parameters) {
-                            //params.put(parameter.getType().getSimpleName(), parameter.getName());
-                            params.put(getParamsType(parameter), parameter.getName());
+                       // --------------
+                        Map<String,Object> params = getParamsAnnotation(method);
+                        Map<String,Object> schema = new HashMap<>();
+                        if(parameters.length == 0){
+                            params.put("required","false");
+                        }else {
+                            params.put("required","true");
+                            for (Parameter parameter : parameters) {
+                                //params.put(parameter.getType().getSimpleName(), parameter.getName());
+                                schema.put( parameter.getName(),getParamsType(parameter));
+                            }
                         }
+                        params.put("schema",schema);
                         methodInfo.put("params",params);
                         apisInfo.add(methodInfo);
+                        log(clazz,method);
                     } else if (postMapping != null) {
                         methodInfo.put("requestType","POST");
                         String[] urls = postMapping.value();
-
                         //方法上的api
                         String mainApi = Arrays.toString(urls).replace("[","").replace("]","");
                         String allApi = partApi + mainApi;
                         allApi = allApi.replace("//","/");
-                        methodInfo.put("url",LOCAL_HOST + allApi);
+                        methodInfo.put("url",allApi);
                         String methodReturnType = getMethodReturnType(method);
                         methodInfo.put("returns",methodReturnType);
-                        Map<String,Object> params = new HashMap<>();
                         Parameter[] parameters = method.getParameters();
-                        for (Parameter parameter : parameters) {
-                            //params.put(parameter.getType().getSimpleName(), parameter.getName());
-                            params.put(getParamsType(parameter), parameter.getName());
+
+
+                        // --------------
+                        Map<String,Object> params = getParamsAnnotation(method);
+                        Map<String,Object> schema = new HashMap<>();
+                        if(parameters.length == 0){
+                            params.put("required","false");
+                        }else {
+                            params.put("required","true");
+                            for (Parameter parameter : parameters) {
+                                //params.put(parameter.getType().getSimpleName(), parameter.getName());
+                                schema.put( parameter.getName(),getParamsType(parameter));
+                            }
                         }
+                        params.put("schema",schema);
                         methodInfo.put("params",params);
                         apisInfo.add(methodInfo);
-
+                        //-------------------------------------------------------------------
+                        log(clazz,method);
+                        //------------------------------------------------------------------
                     }else if (getMapping != null){
                         methodInfo.put("requestType","GET");
                         String[] urls = getMapping.value();
@@ -130,18 +158,28 @@ public class Agent {
                         String mainApi = Arrays.toString(urls).replace("[","").replace("]","");
                         String allApi = partApi + mainApi;
                         allApi = allApi.replace("//","/");
-                        methodInfo.put("url",LOCAL_HOST + allApi);
+                        methodInfo.put("url",allApi);
                         String methodReturnType = getMethodReturnType(method);
                         methodInfo.put("returns",methodReturnType);
-                        Map<String,Object> params = new HashMap<>();
                         Parameter[] parameters = method.getParameters();
-                        for (Parameter parameter : parameters) {
-                            // params.put(parameter.getType().getSimpleName(), parameter.getName());
-
-                            params.put(getParamsType(parameter), parameter.getName());
+                        // --------------
+                        Map<String,Object> params = getParamsAnnotation(method);
+                        Map<String,Object> schema = new HashMap<>();
+                        if(parameters.length == 0){
+                            params.put("required","false");
+                        }else {
+                            params.put("required","true");
+                            for (Parameter parameter : parameters) {
+                                //params.put(parameter.getType().getSimpleName(), parameter.getName());
+                                schema.put( parameter.getName(),getParamsType(parameter));
+                            }
                         }
+                        params.put("schema",schema);
                         methodInfo.put("params",params);
                         apisInfo.add(methodInfo);
+                        //-------------------------------------------------------------------
+                       log(clazz,method);
+                        //------------------------------------------------------------------
                     }
                 }
                 classInfo.put("methods",apisInfo);
@@ -156,7 +194,25 @@ public class Agent {
     }
 
 
+    //日志操作
+    private static void log(Class<?> clazz,Method method){
+        //-------------------------------------------------------------------
+        try {
+            System.out.println("开始执行log--------------------------------------------------");
+            ClassPool classPool = ClassPool.getDefault();
+            CtClass ctClass = classPool.get(clazz.getName());
+            CtMethod ctMethod = ctClass.getDeclaredMethod(method.getName());
 
+            // 在方法执行后加入日志
+            ctMethod.insertAfter("{System.out.println(\"Method " + method.getName() + " executed, return value: \" + $_);}");
+
+            // 再次加载类
+            ctClass.toClass();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //------------------------------------------------------------------
+    }
     //写入本地方法
     private static void write(String jsonString,String fileName){
         File directory = new File(FILE_PATH);
@@ -211,6 +267,37 @@ public class Agent {
             return type.toString();
         }
     }
+
+    private static Map<String,Object> getParamsAnnotation(Method method){
+        Annotation[] parameterAnnotation = method.getParameterAnnotations()[0];
+        Map<String,Object> params = new HashMap<>();
+        for (Annotation annotation : parameterAnnotation) {
+            // 检查注解是否是@CookieValue
+            if (annotation instanceof CookieValue) {
+                CookieValue cookieValue = (CookieValue) annotation;
+                // 获取@CookieValue注解的name属性
+                String name = cookieValue.name();
+                params.put("in","Cookie");
+                params.put("name",name);
+                System.out.println("CookieValue name: " + name);
+            } else if (annotation instanceof RequestHeader) {
+                RequestHeader cookieValue = (RequestHeader) annotation;
+                // 获取@CookieValue注解的name属性
+                String name = cookieValue.name();
+                params.put("in","Header");
+                params.put("name",name);
+            } else if (annotation instanceof RequestBody) {
+                RequestBody cookieValue = (RequestBody) annotation;
+                params.put("in","Body");
+                params.put("name","");
+            }
+        }
+        return params;
+    }
+
+
+
+
 }
 
 
