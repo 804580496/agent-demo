@@ -5,6 +5,7 @@
 
 ## demo开发历程
 
+
    3.6号晚7点，正在食堂吃晚饭，接受到老师发来的任务。仔细阅读了任务内容，提到了java agent技术，这是我之前没用到过的东西。
    赶紧百度了一下，查到了 https://www.cnblogs.com/chengxuzhixin/p/14552275.html 这一篇文章 提到了使用java agent如何修改字节码。还提到了aop。
    因为自己有过aop（面向切面编程的经验），实现过aop防抖（防止用户多次点击）。主要核心是在方法前后进行增强，建立切面。所以比较好理解java agent的作用。
@@ -26,9 +27,9 @@
     在获取类的返回类型中遇到了一些问题：method.getReturnType().getSimpleName(); 返回的类型不太对，例如Map<Strint,Object> 就返回了Map。这一步不太好处理，我就问了问chatgpt怎么返回正常结果，gpt给了我这个getMethodReturnType()函数，我加到了代码里，
     调整了调整，结果可以正确返回了。这时候api的所有信息都能知道了，因为要输出json格式，我经常使用的就是创建Map<String,Object> 放入json数据，在使用JSONobject.toJSONString()方法返回json字符串，最后使用BufferedWriter将数据写到本地。
     以上就是我的开发流程。
--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-     3.10日    接口被调用时的api信息开发
-       看了看要求的api信息，需要时时返回时间和uuid，因为之前了解到了java agent能够修改字节码，我就想到了可以要这样去做。
+
+3.10日    接口被调用时的api信息开发
+    看了看要求的api信息，需要时时返回时间和uuid，因为之前了解到了java agent能够修改字节码，我就想到了可以要这样去做。
        之后查资料得到有java ASW和javassist 可以进行字节码的修改。
         java ASW 这是我采取的第一种方式，读入字节码流 对流进行修改，但是尝试了许多次，出现了各种各样的报错。
         所以才选择了javassist，javassist相对来说简单些：如下
@@ -37,7 +38,7 @@
         CtClass cc = pool.get(className.replace("/", "."));//获取修改的字节码类
         遍历Ctclass的方法，使用 method.insertAfter（）方法在方法前后进行增强。
    
-       项目开发中遇到的问题：
+项目开发中遇到的问题：
         1.版本依赖问题
         当我使用javassist修改字节码并启动项目会出现javaassist版本不适配java17版本。
         这是我回去修改pom.xml文件，将javassist跟新为最新的版本，结果还是不适配.
