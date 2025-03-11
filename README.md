@@ -26,7 +26,25 @@
     在获取类的返回类型中遇到了一些问题：method.getReturnType().getSimpleName(); 返回的类型不太对，例如Map<Strint,Object> 就返回了Map。这一步不太好处理，我就问了问chatgpt怎么返回正常结果，gpt给了我这个getMethodReturnType()函数，我加到了代码里，
     调整了调整，结果可以正确返回了。这时候api的所有信息都能知道了，因为要输出json格式，我经常使用的就是创建Map<String,Object> 放入json数据，在使用JSONobject.toJSONString()方法返回json字符串，最后使用BufferedWriter将数据写到本地。
     以上就是我的开发流程。
-
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     3.10日    接口被调用时的api信息开发
+       看了看要求的api信息，需要时时返回时间和uuid，因为之前了解到了java agent能够修改字节码，我就想到了可以要这样去做。
+       之后查资料得到有java ASW和javassist 可以进行字节码的修改。
+        java ASW 这是我采取的第一种方式，读入字节码流 对流进行修改，但是尝试了许多次，出现了各种各样的报错。
+        所以才选择了javassist，javassist相对来说简单些：如下
+        ClassPool pool = ClassPool.getDefault();//得到类池
+        pool.insertClassPath(new LoaderClassPath(loader));//定义加载器
+        CtClass cc = pool.get(className.replace("/", "."));//获取修改的字节码类
+        遍历Ctclass的方法，使用 method.insertAfter（）方法在方法前后进行增强。
+   
+       项目开发中遇到的问题：
+        1.版本依赖问题
+        当我使用javassist修改字节码并启动项目会出现javaassist版本不适配java17版本。
+        这是我回去修改pom.xml文件，将javassist跟新为最新的版本，结果还是不适配.
+        通过查找其他依赖，查看maven依赖树，发现主模块依赖的<ognl.version>3.4.6</ognl.version> 这个依赖会导致javassist版本过低，所以进行了修改，跟新了版本。
+        2.两个Transformer不能同时生效
+        我将提取方法api信息分成了两个Transformer，一个不修改字节码，一个修改字节码，结果导致修改字节码的Transformer不生效，这可能涉及类的加载机制
+        自己尝试了各种方法，例如类的晚加载，强制加载，改类的名称再加载，修改字节码后再加载。结果还是不行。
 
 
 ## 1.本地启动项目

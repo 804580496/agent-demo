@@ -72,6 +72,7 @@ public class ClassTransformer implements ClassFileTransformer {
                         String allApi = partApi + mainApi;
                         allApi = allApi.replace("//","/");
                         methodInfo.put("url",allApi);
+                        methodInfo.put("className",clazz.getName());
                         String methodReturnType = getMethodReturnType(method);
                         methodInfo.put("returns",methodReturnType);
                         Parameter[] parameters = method.getParameters();
@@ -99,6 +100,7 @@ public class ClassTransformer implements ClassFileTransformer {
                         String allApi = partApi + mainApi;
                         allApi = allApi.replace("//","/");
                         methodInfo.put("url",allApi);
+                        methodInfo.put("className",clazz.getName());
                         String methodReturnType = getMethodReturnType(method);
                         methodInfo.put("returns",methodReturnType);
                         Parameter[] parameters = method.getParameters();
@@ -130,6 +132,7 @@ public class ClassTransformer implements ClassFileTransformer {
                         String allApi = partApi + mainApi;
                         allApi = allApi.replace("//","/");
                         methodInfo.put("url",allApi);
+                        methodInfo.put("className",clazz.getName());
                         String methodReturnType = getMethodReturnType(method);
                         methodInfo.put("returns",methodReturnType);
                         Parameter[] parameters = method.getParameters();
